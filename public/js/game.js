@@ -1,3 +1,89 @@
+/// GUI
+//Set EZGUI renderer
+EZGUI.renderer = game.renderer;
+//load EZGUI themes 
+//here you can pass multiple themes
+EZGUI.Theme.load(['assets/kenney-theme/kenney-theme.json'], function () {
+  //create the gui
+  //the second parameter is the theme name, see kenney-theme.json, the name is defined under __config__ field
+  var guiContainer = EZGUI.create(guiObj, 'kenney');
+  guiContainer.visible = false;
+
+  // Basic Button Input
+  EZGUI.components.btn1.on('click', function (event) {
+    sellOre();
+  });
+  
+  EZGUI.components.btn2.on('click', function (event) {
+    guiContainer.visible = false;
+  });
+  
+  /// Ship Selection and Purchase Input
+  
+  // Corvette
+  EZGUI.components.sc1.on('click', function (event) {
+    newShip('corvette');
+  });
+  
+  // Frigate
+  EZGUI.components.sc2.on('click', function (event) {
+    newShip('frigate');
+  });
+  
+  // Destroyer
+  EZGUI.components.sc3.on('click', function (event) {
+    newShip('destroyer');
+  });
+  
+  // Battleship
+  EZGUI.components.sc4.on('click', function (event) {
+    newShip('battleship');
+  });
+  
+  // Battlecruiser
+  EZGUI.components.sc5.on('click', function (event) {
+    newShip('battlecruiser');
+  });
+  
+  // Cruiser
+  EZGUI.components.sc6.on('click', function (event) {
+    newShip('cruiser');
+  });
+  
+  // Heavy Cruiser
+  EZGUI.components.sc7.on('click', function (event) {
+    newShip('heavycruiser');
+  });
+  
+  // Capital Ship
+  EZGUI.components.sc8.on('click', function (event) {
+    newShip('capitalship');
+  });
+});
+
+// Functions
+function sellOre() {
+  guiContainer.bindChildrenOfType(EZGUI.Component.Radio, 'checked', function (event, me) {
+    console.log('checked ', me.guiID);
+    if(me.guiID == "radio1") {
+      // Selling Iron Ore
+    } else if(me.guiID == "radio2") {
+      // Selling Titanium Ore
+    } else if(me.guiID == "radio3") {
+      // Selling Dilithium Ore
+    } else if(me.guiID == "radio4") {
+      // Selling Zinc
+    } else {
+      // No Selected Ore Type
+      console.log("No selected ore type!");
+    }
+  });
+}
+
+
+
+
+
 /* global Phaser RemotePlayer io */
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render });
@@ -282,87 +368,4 @@ function playerById (id) {
   }
 
   return false;
-}
-
-
-/// GUI
-//Set EZGUI renderer
-EZGUI.renderer = game.renderer;
-//load EZGUI themes 
-//here you can pass multiple themes
-EZGUI.Theme.load(['assets/kenney-theme/kenney-theme.json'], function () {
-  //create the gui
-  //the second parameter is the theme name, see kenney-theme.json, the name is defined under __config__ field
-  var guiContainer = EZGUI.create(guiObj, 'kenney');
-  guiContainer.visible = false;
-
-  // Basic Button Input
-  EZGUI.components.btn1.on('click', function (event) {
-    sellOre();
-  });
-  
-  EZGUI.components.btn2.on('click', function (event) {
-    guiContainer.visible = false;
-  });
-  
-  /// Ship Selection and Purchase Input
-  
-  // Corvette
-  EZGUI.components.sc1.on('click', function (event) {
-    newShip('corvette');
-  });
-  
-  // Frigate
-  EZGUI.components.sc2.on('click', function (event) {
-    newShip('frigate');
-  });
-  
-  // Destroyer
-  EZGUI.components.sc3.on('click', function (event) {
-    newShip('destroyer');
-  });
-  
-  // Battleship
-  EZGUI.components.sc4.on('click', function (event) {
-    newShip('battleship');
-  });
-  
-  // Battlecruiser
-  EZGUI.components.sc5.on('click', function (event) {
-    newShip('battlecruiser');
-  });
-  
-  // Cruiser
-  EZGUI.components.sc6.on('click', function (event) {
-    newShip('cruiser');
-  });
-  
-  // Heavy Cruiser
-  EZGUI.components.sc7.on('click', function (event) {
-    newShip('heavycruiser');
-  });
-  
-  // Capital Ship
-  EZGUI.components.sc8.on('click', function (event) {
-    newShip('capitalship');
-  });
-});
-
-// Functions
-function sellOre() {
-  guiContainer.bindChildrenOfType(EZGUI.Component.Radio, 'checked', function (event, me) {
-    console.log('checked ', me.guiID);
-    if(me.guiID == "radio1") {
-      // Selling Iron Ore
-    } else if(me.guiID == "radio2") {
-      // Selling Titanium Ore
-    } else if(me.guiID == "radio3") {
-      // Selling Dilithium Ore
-    } else if(me.guiID == "radio4") {
-      // Selling Zinc
-    } else {
-      // No Selected Ore Type
-      console.log("No selected ore type!");
-    }
-  });
 }
