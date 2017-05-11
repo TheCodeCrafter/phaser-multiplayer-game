@@ -264,3 +264,20 @@ function playerById (id) {
 
   return false;
 }
+
+
+/// GUI
+//Set EZGUI renderer
+EZGUI.renderer = game.renderer;
+//load EZGUI themes 
+//here you can pass multiple themes
+EZGUI.Theme.load(['../../assets/kenney-theme/kenney-theme.json'], function () {
+    //create the gui
+    //the second parameter is the theme name, see kenney-theme.json, the name is defined under __config__ field
+    var guiContainer = EZGUI.create(guiObj, 'kenney');
+    EZGUI.components.btn1.on('click', function (event) {
+            console.log('clicked', event);
+        });
+});
+
+
