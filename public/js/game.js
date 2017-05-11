@@ -94,6 +94,9 @@ var setEventHandlers = function () {
   // Player move message received
   socket.on('move player', onMovePlayer);
   
+  // Player shoot message received
+  socket.on('shoot player', onShootPlayer);
+  
   // Player change message received
   socket.on('change player', onChangePlayer);
 
@@ -151,6 +154,19 @@ function onMovePlayer (data) {
   movePlayer.player.angle = data.angle;
 }
 
+// Shoot Player
+function onShootPlayer (data) {
+  var shootPlayer = playerById(data.id);
+  
+  // Player not found
+  if(!shootPlayer) {
+    console.log("Player not found! ID: " + data.id);
+    return;
+  }
+  
+  
+}
+
 // Change Player
 function onChangePlayer (data) {
   var changePlayer = playerById(data.id);
@@ -185,6 +201,21 @@ function update () {
     if (enemies[i].alive) {
       enemies[i].update();
       game.physics.arcade.collide(player, enemies[i].player);
+    }
+  }
+  
+  for(var i=0; i < bullets.length; i++) {
+    if(bullets[i].alive) {
+      if(game.physics.arcade.intersects(player, bullets[i])) {
+        bullets[i].alive = false;
+        bullets[i].sprite.kill();
+        bullets.splice(bullets.indexOf(bullets[i]), 1);
+      } else {
+        
+      }
+    } else {
+      bullets[i].sprite.kill();
+      bullets.splice(bullets.indexOf(bullets[i]), 1);
     }
   }
 
