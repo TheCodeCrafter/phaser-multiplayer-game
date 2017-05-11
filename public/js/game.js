@@ -13,8 +13,9 @@ function preload () {
   game.load.image('destroyer', 'assets/Human-Destroyer.png');
   game.load.image('battleship', 'assets/Human-Battleship.png');
   game.load.image('battlecruiser', 'assets/Human-Battlecruiser.png');
-  game.load.image('heavycruiser', 'assets/Human-HeavyCruiser.png');
   game.load.image('cruiser', 'assets/Human-Cruiser.png');
+  game.load.image('heavycruiser', 'assets/Human-HeavyCruiser.png');
+  game.load.image('capitalship', 'assets/Human-CapitalShip.png');
   game.load.image('enemy', 'assets/Fighter.png');
   
   // Space Station
@@ -57,6 +58,13 @@ function create () {
   var startY = Math.round(Math.random() * (1000) - 500);
   player = game.add.sprite(startX, startY, 'fighter');
   player.anchor.setTo(0.5, 0.5);
+  player.money = 0;
+  player.inventory = {
+    iron: 0,
+    titanium: 0,
+    dilithium: 0,
+    zinc: 0
+  };
 
   // This will force it to decelerate and limit its speed
   // player.body.drag.setTo(200, 200)
@@ -204,16 +212,8 @@ function update () {
   }
   
   if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && game.physics.arcade.intersects(player, station)) {
-    if(canChange) {
-      canChange = false;
-      changeTexture(player);
-      socket.emit('change', { key: player.key });
-      
-      setTimeout(function() {
-        canChange = true;
-      }, 1000);
-    } else {
-      console.log("1 Second interval in between changes");
+    if(guiContainer.visible = false) {
+      guiContainer.visible = true;
     }
   }
   
@@ -229,7 +229,7 @@ function render () {
 
 }
 
-function changeTexture(object) {
+function changeTextureRandom(object) {
   var random = Math.floor(Math.random() * (8 - 1)) + 1;
     
   if(random == 8) {
@@ -254,6 +254,25 @@ function changeTexture(object) {
   }
 }
 
+function changeTexture(object, key) {
+  if(!object) {
+    console.log("You must have a Phaser Sprite object to change it's texture!");
+    return;
+  }
+  
+  if(!key) {
+    console.log("You must have a correct resource key to change an objects texture to it!");
+    return;
+  }
+  
+  object.loadTexture(key);
+}
+
+function newShip(key) {
+  socket.emit('change', { key: key });
+  changeTexture(player, key);
+}
+
 // Find player by ID
 function playerById (id) {
   for (var i = 0; i < enemies.length; i++) {
@@ -271,13 +290,79 @@ function playerById (id) {
 EZGUI.renderer = game.renderer;
 //load EZGUI themes 
 //here you can pass multiple themes
-EZGUI.Theme.load(['../../assets/kenney-theme/kenney-theme.json'], function () {
-    //create the gui
-    //the second parameter is the theme name, see kenney-theme.json, the name is defined under __config__ field
-    var guiContainer = EZGUI.create(guiObj, 'kenney');
-    EZGUI.components.btn1.on('click', function (event) {
-            console.log('clicked', event);
-        });
+EZGUI.Theme.load(['assets/kenney-theme/kenney-theme.json'], function () {
+  //create the gui
+  //the second parameter is the theme name, see kenney-theme.json, the name is defined under __config__ field
+  var guiContainer = EZGUI.create(guiObj, 'kenney');
+  guiContainer.visible = false;
+
+  // Basic Button Input
+  EZGUI.components.btn1.on('click', function (event) {
+    sellOre();
+  });
+  
+  EZGUI.components.btn2.on('click', function (event) {
+    guiContainer.visible = false;
+  });
+  
+  /// Ship Selection and Purchase Input
+  
+  // Corvette
+  EZGUI.components.sc1.on('click', function (event) {
+    newShip('corvette');
+  });
+  
+  // Frigate
+  EZGUI.components.sc2.on('click', function (event) {
+    newShip('frigate');
+  });
+  
+  // Destroyer
+  EZGUI.components.sc3.on('click', function (event) {
+    newShip('destroyer');
+  });
+  
+  // Battleship
+  EZGUI.components.sc4.on('click', function (event) {
+    newShip('battleship');
+  });
+  
+  // Battlecruiser
+  EZGUI.components.sc5.on('click', function (event) {
+    newShip('battlecruiser');
+  });
+  
+  // Cruiser
+  EZGUI.components.sc6.on('click', function (event) {
+    newShip('cruiser');
+  });
+  
+  // Heavy Cruiser
+  EZGUI.components.sc7.on('click', function (event) {
+    newShip('heavycruiser');
+  });
+  
+  // Capital Ship
+  EZGUI.components.sc8.on('click', function (event) {
+    newShip('capitalship');
+  });
 });
 
-
+// Functions
+function sellOre() {
+  guiContainer.bindChildrenOfType(EZGUI.Component.Radio, 'checked', function (event, me) {
+    console.log('checked ', me.guiID);
+    if(me.guiID == "radio1") {
+      // Selling Iron Ore
+    } else if(me.guiID == "radio2") {
+      // Selling Titanium Ore
+    } else if(me.guiID == "radio3") {
+      // Selling Dilithium Ore
+    } else if(me.guiID == "radio4") {
+      // Selling Zinc
+    } else {
+      // No Selected Ore Type
+      console.log("No selected ore type!");
+    }
+  });
+}
