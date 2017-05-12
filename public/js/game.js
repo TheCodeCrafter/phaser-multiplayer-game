@@ -164,7 +164,7 @@ function onShootPlayer (data) {
     return;
   }
   
-  
+  bullets.push(new Bullet(game, shootPlayer.id, data.x, data.y, data.angle));
 }
 
 // Change Player
@@ -211,7 +211,7 @@ function update () {
         bullets[i].sprite.kill();
         bullets.splice(bullets.indexOf(bullets[i]), 1);
       } else {
-        
+        bullets[i].update();
       }
     } else {
       bullets[i].sprite.kill();
