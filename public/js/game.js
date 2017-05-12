@@ -1,6 +1,6 @@
 /* global Phaser RemotePlayer io */
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render });
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game', { preload: preload, create: create, update: update, render: render });
 
 function preload () {
   // Space Background
@@ -16,6 +16,9 @@ function preload () {
   game.load.image('heavycruiser', 'assets/Human-HeavyCruiser.png');
   game.load.image('cruiser', 'assets/Human-Cruiser.png');
   game.load.image('enemy', 'assets/Fighter.png');
+  
+  // Missile
+  game.load.image('missile', 'assets/Human-Missile.png');
   
   // Space Station
   game.load.image('station', 'assets/Human-Spacestation.png');
@@ -94,6 +97,9 @@ var setEventHandlers = function () {
   // Player move message received
   socket.on('move player', onMovePlayer);
   
+  // Player shoot message received
+  socket.on('shoot player', onShootPlayer);
+  
   // Player change message received
   socket.on('change player', onChangePlayer);
 
@@ -151,6 +157,19 @@ function onMovePlayer (data) {
   movePlayer.player.angle = data.angle;
 }
 
+// Shoot Player
+function onShootPlayer (data) {
+  var shootPlayer = playerById(data.id);
+  
+  // Player not found
+  if(!shootPlayer) {
+    console.log("Player not found! ID: " + data.id);
+    return;
+  }
+  
+  bullets.push(new Bullet(game, shootPlayer.id, data.x, data.y, data.angle));
+}
+
 // Change Player
 function onChangePlayer (data) {
   var changePlayer = playerById(data.id);
@@ -183,8 +202,30 @@ function onRemovePlayer (data) {
 function update () {
   for (var i = 0; i < enemies.length; i++) {
     if (enemies[i].alive) {
+      // Make sure they shouldn't be already dead
+      if(enemies[i].health <= 0) {
+        enemies[i].alive = false;
+        return;
+      }
+      
+      // Update Enemies
       enemies[i].update();
       game.physics.arcade.collide(player, enemies[i].player);
+      
+      // Bullets
+      for(var i=0; i < bullets.length; i++) {
+        if(bullets[i].alive) {
+          if(game.physics.arcade.intersects(enemies[i].player, bullets[i].sprite)) {
+            enemies[i].health--;
+            
+            bullets[i].sprite.kill();
+            bullets.splice(bullets.indexOf(bullets[i]), 1);
+          }
+        } else {
+          bullets[i].sprite.kill();
+          bullets.splice(bullets.indexOf(bullets[i]), 1);
+        }
+      }
     }
   }
 
@@ -203,18 +244,8 @@ function update () {
     }
   }
   
-  if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && game.physics.arcade.intersects(player, station)) {
-    if(canChange) {
-      canChange = false;
-      changeTexture(player);
-      socket.emit('change', { key: player.key });
-      
-      setTimeout(function() {
-        canChange = true;
-      }, 1000);
-    } else {
-      console.log("1 Second interval in between changes");
-    }
+  if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+    fireBullet();
   }
   
   game.physics.arcade.velocityFromAngle(player.angle - 90, currentSpeed, player.body.velocity);
@@ -252,6 +283,11 @@ function changeTexture(object) {
     console.log("An error occured with the random number generation");
     return;
   }
+}
+
+function fireBullet() {
+  bullets.push(new Bullet(game, 0, player.x, player.y, player.angle));
+  socket.emit('shoot player');
 }
 
 // Find player by ID
