@@ -244,7 +244,7 @@ function update () {
     }
   }
   
-  if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && game.physics.arcade.intersects(player, station)) {
+  if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
     fireBullet();
   }
   
