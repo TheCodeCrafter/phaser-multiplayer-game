@@ -17,6 +17,9 @@ function preload () {
   game.load.image('cruiser', 'assets/Human-Cruiser.png');
   game.load.image('enemy', 'assets/Fighter.png');
   
+  // Missile
+  game.load.image('missile', 'assets/Human-Missile.png');
+  
   // Space Station
   game.load.image('station', 'assets/Human-Spacestation.png');
 }
