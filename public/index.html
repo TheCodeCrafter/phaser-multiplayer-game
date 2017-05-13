@@ -1,14 +1,79 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang='en'>
   <head>
     <meta charset='UTF-8' />
     <title>The Space Wars!</title>
+    <!-- CSS -->
+    <link type='text/css' rel='stylesheet' href='/style/jquery-ui.min.css' />
+    <link type='text/css' rel='stylesheet' href='/style/jquery-ui.theme.min.css' />
+    <link type='text/css' rel='stylesheet' href='/style/jquery-ui.structure.min.css' />
     <link type='text/css' rel='stylesheet' href='/style/reset.css' />
     <link type='text/css' rel='stylesheet' href='/style/game.css' />
+    <!-- Vendor JS -->
+    <script src='/js/vendor/jquery-3.2.1.min.js'></script>
+    <script src='/js/vendor/jquery-ui.min.js'></script>
     <script src='/js/vendor/phaser.min.js'></script>
     <script src='/socket.io/socket.io.js'></script>
+    
+    <!-- UI JS -->
+    <script>
+      var menuDialog;
+      $(function() {
+        // Menu Dialog
+        $("#menu").dialog({
+          autoOpen: false,
+          resizable: false,
+          draggable: false,
+          modal: true,
+          buttons: {
+            "Resume Game": function() {
+              $(this).dialog("close");
+            },
+            "Exit": function() {
+              alert("Leaving Game...");
+              window.close();
+            }
+          }
+        });
+        
+        /// Graphics
+        $("#graphics-slider").slider({
+          value: 3,
+          min: 1,
+          max: 3,
+          step: 1,
+          slide: function(event, ui) {
+            if(ui.value == 1) {
+              $("#quality").val("Low");
+            } else if(ui.value == 2) {
+              $("#quality").val("Medium");
+            } else if(ui.value == 3) {
+              $("#quality").val("High");
+            } else {
+              $("#quality").val("High");
+            }
+          }
+        });
+        $("#quality").val("High");
+        
+      });
+    </script>
   </head>
   <body>
+    <!-- UI -->
+    <div id="menu" title="Pause Menu">
+      <!-- OPTIONS -->
+      <div id="graphics">
+        <h4>Graphics: <input type="text" id="quality" readonly /></h4>
+        <div id="graphics-slider"></div>
+      </div>
+      <!-- CONTROLS -->
+      <div id="controls">
+        <p>Controls.</p>
+      </div>
+    </div>
+    
+    <!-- JS -->
     <script src='/js/RemotePlayer.js'></script>
     <script src='/js/game.js'></script>
   </body>
