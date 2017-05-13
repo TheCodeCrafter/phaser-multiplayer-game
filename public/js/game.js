@@ -203,6 +203,14 @@ function update () {
     }
   }
   
+  if(game.input.keyboard.isDown(Phaser.Keyboard.ESC)) {
+    if(!menuDialog.isOpen) {
+      menuDialog.open();
+    } else {
+      menuDialog.close();
+    }
+  }
+  
   if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && game.physics.arcade.intersects(player, station)) {
     if(canChange) {
       canChange = false;
