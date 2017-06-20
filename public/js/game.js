@@ -100,6 +100,9 @@ var setEventHandlers = function () {
   
   // Player change message received
   socket.on('change player', onChangePlayer);
+  
+  // Player shoot message received
+  socket.on('shoot player', onShootPlayer);
 
   // Player removed message received
   socket.on('remove player', onRemovePlayer);
