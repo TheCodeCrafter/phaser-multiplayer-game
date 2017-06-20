@@ -253,7 +253,7 @@ function update () {
 
 function render () {
   // Display Money
-  game.debug.text( "$" + player.money, 100, 380 );
+  game.debug.text( "$" + player.money, 10, 10 );
 }
 
 // Change Texture
