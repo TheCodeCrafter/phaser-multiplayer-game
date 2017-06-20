@@ -26,7 +26,7 @@ var socket; // Socket connection
 var land;
 var station;
 
-var canChange = false;
+var canShoot = false;
 
 var player;
 
@@ -63,6 +63,9 @@ function create () {
   game.physics.enable(player, Phaser.Physics.ARCADE);
   player.body.maxVelocity.setTo(400, 400);
   player.body.collideWorldBounds = true;
+  
+  // Give the Player an amount of money
+  player.money = 0;
 
   // Create some baddies to waste :)
   enemies = [];
@@ -78,7 +81,8 @@ function create () {
   // Start listening for events
   setEventHandlers();
   
-  canChange = true;
+  game.input.mouse.capture = true;
+  canShoot = true;
 }
 
 var setEventHandlers = function () {
@@ -151,6 +155,20 @@ function onMovePlayer (data) {
   movePlayer.player.angle = data.angle;
 }
 
+function onShootPlayer (data) {
+  var shootPlayer = playerById(data.owner);
+  
+  // Player not found
+  if (!shootPlayer) {
+    console.log('Player not found: ', data.owner);
+    return;
+  }
+  
+  // Create laser and check it for hits
+  var laser = new Phaser.Line(data.start.x, data.start.y, data.end.x, data.end.y);
+  checkLaserCollision(laser);
+}
+
 // Change Player
 function onChangePlayer (data) {
   var changePlayer = playerById(data.id);
@@ -184,7 +202,6 @@ function update () {
   for (var i = 0; i < enemies.length; i++) {
     if (enemies[i].alive) {
       enemies[i].update();
-      game.physics.arcade.collide(player, enemies[i].player);
     }
   }
 
@@ -203,17 +220,23 @@ function update () {
     }
   }
   
-  if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && game.physics.arcade.intersects(player, station)) {
-    if(canChange) {
-      canChange = false;
-      changeTexture(player);
-      socket.emit('change', { key: player.key });
+  if(game.input.activePointer.leftButton.isDown) {
+    if(canShoot) {
+      socket.emit('shoot', {
+        start: {
+          x: player.x,
+          y: player.y
+        },
+        end: {
+          x: game.input.mousePointer.x,
+          y: game.input.mousePointer.y
+        }
+      });
       
+      canShoot = false;
       setTimeout(function() {
-        canChange = true;
-      }, 1000);
-    } else {
-      console.log("1 Second interval in between changes");
+        canShoot = true;
+      },500);
     }
   }
   
@@ -226,31 +249,51 @@ function update () {
 }
 
 function render () {
-
+  // Display Money
+  game.debug.text( "$" + player.money, 100, 380 );
 }
 
-function changeTexture(object) {
-  var random = Math.floor(Math.random() * (8 - 1)) + 1;
-    
-  if(random == 8) {
-    object.loadTexture('fighter');
-  } else if(random == 7) {
-    object.loadTexture('corvette');
-  } else if(random == 6) {
-    object.loadTexture('frigate');
-  } else if(random == 5) {
-    object.loadTexture('destroyer');
-  } else if(random == 4) {
-    object.loadTexture('battleship');
-  } else if(random == 3) {
-    object.loadTexture('battlecruiser');
-  } else if(random == 2) {
-    object.loadTexture('cruiser');
-  } else if(random == 1) {
-    object.loadTexture('heavycruiser');
-  } else {
-    console.log("An error occured with the random number generation");
+// Change Texture
+function changeTexture(object, texture) {
+  // Object not found
+  if(!object) {
+    console.log('Object not found...');
     return;
+  }
+  
+  object.loadTexture(texture);
+}
+
+function displayGUI() {
+  swal({
+    title: 'Station Shop',
+    html:
+      'You can use <b>bold text</b>, ' +
+      '<a href="//github.com">links</a> ' +
+      'and other HTML tags',
+    showCloseButton: true,
+    showCancelButton: true,
+    confirmButtonText:
+      '<i class="fa fa-thumbs-up"></i> Great!',
+    cancelButtonText:
+      '<i class="fa fa-thumbs-down"></i>'
+  });
+}
+
+
+// Check For Laser Collision
+function checkLaserCollision(laser) {
+  for(var i = 0; i < enemies.length; i++) {
+    var collisionRect = new Phaser.Rectangle;
+    if(enemies[i].alive) {
+      collisionRect.copyFrom(enemies[i].player);
+      
+      if(Phaser.Line.intersectsRectangle(laser, collisionRect)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 }
 
