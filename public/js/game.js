@@ -168,8 +168,11 @@ function onShootPlayer (data) {
   }
   
   // Create laser and check it for hits
+  var graphics=game.add.graphics(0,0);
+  
+  graphics.lineStyle(10, 0xffd900, 1);
   var laser = new Phaser.Line(data.start.x, data.start.y, data.end.x, data.end.y);
-  checkLaserCollision(laser);
+  // checkLaserCollision(laser);
 }
 
 // Change Player
